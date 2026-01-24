@@ -13,10 +13,6 @@ const ChallengeSchema = new mongoose.Schema({
     type: Number,
      required: true 
     },
-  flag: { 
-    type: String, 
-    required: true, 
-    select: false }, 
   room: { 
     type: mongoose.Schema.Types.ObjectId, 
     ref: 'Room', 

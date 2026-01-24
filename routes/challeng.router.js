@@ -4,5 +4,5 @@ import { creatChallange, getChallengesByRoom } from "../controllers/challange.co
 const challengRouter = Router();
 
 challengRouter.post("/CreateChallenge", creatChallange);
-challengRouter.get("/getchallenges",getChallengesByRoom)
+challengRouter.get("/getchallenges/:id",getChallengesByRoom)
 export default challengRouter;
