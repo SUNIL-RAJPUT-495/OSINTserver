@@ -4,6 +4,8 @@ import {connectDB} from '../backend/config/db.js';
 import userRouter from './routes/user.route.js';
 import morgan from 'morgan'; 
 import cors from 'cors';  
+import roomRouter from './routes/room.router.js';
+import challengRouter from './routes/challeng.router.js';
 const app = express();
 app.use(express.json());
 app.use(morgan('dev'));
@@ -23,6 +25,8 @@ app.get('/', (req, res) => {
 });
 
 app.use("/api/user",userRouter)
+app.use("/api/room",roomRouter);
+app.use("/api/challenge",challengRouter);
 
 
 connectDB();
