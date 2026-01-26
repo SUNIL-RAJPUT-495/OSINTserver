@@ -3,7 +3,6 @@ import { room } from '../models/room.model.js';
 
 export const creatChallange = async (req, res) => {
     try {
-        // Flag hata diya
         const { title, description, points, roomId } = req.body;
 
         if (!title || !description || !points || !roomId) {
@@ -23,7 +22,6 @@ export const creatChallange = async (req, res) => {
 
         const savedChallenge = await newChallenge.save();
 
-        // Room update karna zaroori hai
         await room.findByIdAndUpdate(roomId, {
             $push: { challenges: savedChallenge._id }
         });
@@ -48,7 +46,6 @@ export const getChallengesByRoom = async (req, res) => {
     try {
         const { roomId } = req.params;
         
-        // .select('-flag') hata diya kyunki ab flag hai hi nahi
         const challenges = await Challenge.find({ room: roomId }); 
         
         res.status(200).json({

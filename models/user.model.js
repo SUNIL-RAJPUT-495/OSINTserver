@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 
 const userSchema = new mongoose.Schema({
-    fullName: { // 👈 Change 1: 'name' ki jagah 'fullName'
+    fullName: { 
         type: String,
         required: true,
         trim: true
