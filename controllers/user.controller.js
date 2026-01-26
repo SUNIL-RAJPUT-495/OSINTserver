@@ -5,19 +5,28 @@ import { generateToken } from '../utils/generatedToken.js';
 // ---------------------- CREATE USER ----------------------
 export const creatuser = async (req, res) => {
     try {
-        const { fullName, mobileNumber, email, password, accessCode } = req.body;
+        const { fullName, mobileNumber, email, password ,accessCode,role} = req.body;
         
         
         console.log("Signup Request:", req.body);
 
-      
-        if (!fullName || !mobileNumber || !email || !password || !accessCode) {
+
+
+        if (!fullName || !mobileNumber || !email || !password || !role) {
             return res.status(400).json({
-                message: "All fields are required (including Access Code)",
+                message: "All fields are required ",
                 error: true,
                 success: false
             });
         }
+        if(role==="customer" && !accessCode){
+            return res.status(400).json({
+                message: "Access Code is required for customer role",
+                error: true,
+                success: false});
+            }
+
+
 
         const userExits = await User.findOne({ email });
 
@@ -63,9 +72,9 @@ export const creatuser = async (req, res) => {
 // ---------------------- VERIFY USER (LOGIN) ----------------------
 export const verifyUser = async (req, res) => {
     try {
-        const { email, password, accessCode } = req.body;
+        const { email, password, accessCode ,role} = req.body;
 
-        if (!email || !password || !accessCode) {
+        if (!email || !password || !role) {
             return res.status(400).json({
                 message: "All fields are required",
                 error: true,

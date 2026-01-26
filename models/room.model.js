@@ -15,6 +15,9 @@ const RoomSchema = new mongoose.Schema({
     enum: ['Beginner', 'Intermediate', 'Advanced', 'Expert'], 
     default: 'Beginner'
   },
+  category: { 
+    type: String, 
+    default: 'OSINT Investigation'},
   pointsReward: { 
     type: Number, 
     default: 0

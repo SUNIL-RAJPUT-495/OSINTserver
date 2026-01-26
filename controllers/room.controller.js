@@ -1,6 +1,6 @@
 import { room } from "../models/room.model.js"; 
 
-// --- 1. Create Room ---
+
 export const createRoom = async (req, res) => {
   try {
     const { name, totalChallenges, totalPoints, difficulty, description } = req.body;
@@ -37,10 +37,14 @@ export const createRoom = async (req, res) => {
   }
 };
 
-// --- 2. Get All Rooms (Dashboard List ke liye) ---
+
+
+
+
 export const getAllRooms = async (req, res) => {
   try {
-    const rooms = await room.find()
+    const rooms = await room.find().populate('challenges') 
+      .sort({ createdAt: -1 })
 
     return res.status(200).json({
       success: true,
@@ -59,14 +63,12 @@ export const getAllRooms = async (req, res) => {
   }
 };
 
-// --- 3. Get Single Room (Room Detail Page ke liye) ---
-// *YE FUNCTION MISSING THA, ISSE ADD KAREIN*
+
+
+
 export const getRoom = async (req, res) => {
     try {
         const { id } = req.params;
-
-        // IMPORTANT: .populate('challenges') yahan zaroori hai
-        // Taaki jab kisi room par click karein to challenges ka data bhi aaye
         const singleRoom = await room.findById(id).populate('challenges'); 
 
         if (!singleRoom) {
@@ -78,11 +80,72 @@ export const getRoom = async (req, res) => {
 
         return res.status(200).json({
             message: "Room details fetched",
-            data: singleRoom, // Frontend 'room' state mein ye data set karega
+            data: singleRoom,
             success: true
         });
 
     } catch (error) {
+        return res.status(500).json({
+            message: error.message || "Server Error",
+            success: false
+        });
+    }
+};
+
+
+export const deleteRoom = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const deletedRoom = await room.findByIdAndDelete(id);
+
+        if (!deletedRoom) {
+            return res.status(404).json({
+                message: "Room not found",
+                success: false
+            });
+        }
+
+        return res.status(200).json({
+            message: "Room deleted successfully",
+            success: true
+        });
+
+    } catch (error) {
+        return res.status(500).json({
+            message: error.message || "Server Error",
+            success: false
+        });
+    }
+};
+
+export const updateRoom = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { name, totalChallenges, totalPoints, difficulty, description } = req.body;
+        const updatedRoom = await room.findByIdAndUpdate(
+            id,
+            {
+                name,
+                targetChallenges: totalChallenges,
+                pointsReward: totalPoints,
+                difficulty,
+                description
+            },
+            { new: true }
+        );  
+        if (!updatedRoom) {
+            return res.status(404).json({
+                message: "Room not found",
+                success: false
+            });
+        } 
+        return res.status(200).json({
+            message: "Room updated successfully",
+            data: updatedRoom,
+            success: true
+        });
+    }
+    catch (error) {
         return res.status(500).json({
             message: error.message || "Server Error",
             success: false
