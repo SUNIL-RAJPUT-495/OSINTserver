@@ -162,3 +162,25 @@ export const verifyUser = async (req, res) => {
         });
     }
 }
+
+
+export const getUser = async (req, res) => {
+    try {
+        const customers = await User.find({ role: "customer" });
+
+        return res.status(200).json({
+            message: "Customer data fetched successfully",
+            error: false,
+            success: true,
+            data: customers
+        });
+
+    } catch (err) {
+        console.error("Fetch User Error:", err);
+        return res.status(500).json({
+            message: "Internal Server Error",
+            error: true,
+            success: false
+        });
+    }
+};

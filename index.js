@@ -1,6 +1,6 @@
 import express from 'express';
 import dotenv from 'dotenv';
-import { connectDB } from './config/db.js'; // Check path carefully
+import { connectDB } from './config/db.js'; 
 import userRouter from './routes/user.route.js';
 import morgan from 'morgan'; 
 import cors from 'cors';  
