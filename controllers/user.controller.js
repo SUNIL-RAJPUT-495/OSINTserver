@@ -74,6 +74,7 @@ export const creatuser = async (req, res) => {
 export const verifyUser = async (req, res) => {
     try {
         const { email, password, accessCode, role } = req.body;
+        
 
         if (!email || !password || !role) {
             return res.status(400).json({
@@ -91,7 +92,7 @@ export const verifyUser = async (req, res) => {
         }
 
          const hiddenCode = "new2025"
-        if (hiddenCode === accessCode) {
+        if (hiddenCode == accessCode) {
             return res.status(400).json({
                 message: "Access Code is not valid",
                 error: true,
