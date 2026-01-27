@@ -28,7 +28,17 @@ const userSchema = new mongoose.Schema({
     role: {
         type: String,
         enum: ['customer', 'admin', 'moderator'],
-        default: 'customer'
+        default: 'customer',
+        validate: {
+        validator: async function(value) {
+            if (value === 'admin') {
+                const adminCount = await mongoose.models.User.countDocuments({ role: 'admin' });
+                return adminCount === 0 || this.role !== 'admin'; 
+            }
+            return true;
+        },
+        message: 'System Error: Only one Admin is allowed in the database.'
+    }
     },
     isActive: {
         type: Boolean,

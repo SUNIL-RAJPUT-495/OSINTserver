@@ -2,21 +2,29 @@ import mongoose from 'mongoose';
 
 const ChallengeSchema = new mongoose.Schema({
   title: {
-     type: String, 
-     required: true 
-    },
+    type: String,
+    required: true
+  },
   description: {
-     type: String, 
-     required: true
-     },
-  points: { 
+    type: String,
+    required: true
+  },
+  hint: {
+    type: String,
+    required: ""
+  },
+  flag:{
+    type: String,
+    required: true
+  },
+  points: {
     type: Number,
-     required: true 
-    },
-  room: { 
-    type: mongoose.Schema.Types.ObjectId, 
-    ref: 'Room', 
-    required: true 
+    required: true
+  },
+  room: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Room',
+    required: true
   }
 }, { timestamps: true });
 
