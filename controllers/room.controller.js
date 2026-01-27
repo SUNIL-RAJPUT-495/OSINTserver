@@ -5,7 +5,7 @@ export const createRoom = async (req, res) => {
   try {
     const { name, totalChallenges, totalPoints, difficulty, description } = req.body;
 
-    if (!name || !totalChallenges || !totalPoints || !difficulty) {
+    if (!name || !description || !difficulty) {
       return res.status(400).json({ 
         success: false, 
         message: "All fields are required" 

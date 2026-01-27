@@ -5,9 +5,9 @@ import { generateToken } from '../utils/generatedToken.js';
 // ---------------------- CREATE USER ----------------------
 export const creatuser = async (req, res) => {
     try {
-        const { fullName, mobileNumber, email, password ,accessCode,role} = req.body;
-        
-        
+        const { fullName, mobileNumber, email, password, accessCode, role } = req.body;
+
+
         console.log("Signup Request:", req.body);
 
 
@@ -19,12 +19,14 @@ export const creatuser = async (req, res) => {
                 success: false
             });
         }
-        if(role==="customer" && !accessCode){
+        if (role === "customer" && !accessCode) {
             return res.status(400).json({
                 message: "Access Code is required for customer role",
                 error: true,
-                success: false});
-            }
+                success: false
+            });
+        }
+
 
 
 
@@ -38,18 +40,27 @@ export const creatuser = async (req, res) => {
             });
         }
 
+
+        const hiddenCode = "new2025"
+        if (hiddenCode === accessCode) {
+            return res.status(400).json({
+                message: "Access Code is not valid",
+                error: true,
+                success: false
+            });
+        }
         const hashedPassword = await bcypt.hash(password, 10);
 
         const user = await User.create({
-            fullName,       
+            fullName,
             mobileNumber,
             email,
             password: hashedPassword,
             accessCode,
             role: 'customer'
         });
-        
-      
+
+
 
         return res.status(201).json({
             message: "User created successfully",
@@ -72,7 +83,7 @@ export const creatuser = async (req, res) => {
 // ---------------------- VERIFY USER (LOGIN) ----------------------
 export const verifyUser = async (req, res) => {
     try {
-        const { email, password, accessCode ,role} = req.body;
+        const { email, password, accessCode, role } = req.body;
 
         if (!email || !password || !role) {
             return res.status(400).json({
@@ -92,7 +103,7 @@ export const verifyUser = async (req, res) => {
             });
         }
 
-      
+
         if (user.accessCode !== accessCode) {
             return res.status(401).json({
                 message: "Invalid access code",
@@ -101,7 +112,7 @@ export const verifyUser = async (req, res) => {
             });
         }
 
-  
+
         const isPasswordValid = await bcypt.compare(password, user.password);
         if (!isPasswordValid) {
             return res.status(401).json({
@@ -111,32 +122,32 @@ export const verifyUser = async (req, res) => {
             });
         }
 
-    
+
         const token = await generateToken(user._id);
 
-        
+
         user.refreshToken = token;
-        await user.save(); 
+        await user.save();
 
         const cookieOption = {
-            httpOnly: true,  
-            secure: false, 
+            httpOnly: true,
+            secure: false,
             sameSite: 'lax',
-            maxAge: 30 * 24 * 60 * 60 * 1000 
+            maxAge: 30 * 24 * 60 * 60 * 1000
         };
 
-        
+
         return res
             .cookie("token", token, cookieOption)
             .status(200)
             .json({
                 message: "User verified successfully",
-                error: false,   
+                error: false,
                 success: true,
-                token: token, 
+                token: token,
                 data: {
                     _id: user._id,
-                    fullName: user.fullName, 
+                    fullName: user.fullName,
                     email: user.email,
                     role: user.role
                 }
