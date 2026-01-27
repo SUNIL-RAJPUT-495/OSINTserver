@@ -27,9 +27,6 @@ export const creatuser = async (req, res) => {
             });
         }
 
-
-
-
         const userExits = await User.findOne({ email });
 
         if (userExits) {
@@ -41,14 +38,7 @@ export const creatuser = async (req, res) => {
         }
 
 
-        const hiddenCode = "new2025"
-        if (hiddenCode === accessCode) {
-            return res.status(400).json({
-                message: "Access Code is not valid",
-                error: true,
-                success: false
-            });
-        }
+       
         const hashedPassword = await bcypt.hash(password, 10);
 
         const user = await User.create({
@@ -92,6 +82,23 @@ export const verifyUser = async (req, res) => {
                 success: false
             });
         }
+        if (role === "customer" && !accessCode) {
+            return res.status(400).json({
+                message: "Access Code is required for customer role",
+                error: true,
+                success: false
+            });
+        }
+
+         const hiddenCode = "new2025"
+        if (hiddenCode === accessCode) {
+            return res.status(400).json({
+                message: "Access Code is not valid",
+                error: true,
+                success: false
+            });
+        }
+
 
         const user = await User.findOne({ email });
 
@@ -104,14 +111,7 @@ export const verifyUser = async (req, res) => {
         }
 
 
-        if (user.accessCode !== accessCode) {
-            return res.status(401).json({
-                message: "Invalid access code",
-                error: true,
-                success: false
-            });
-        }
-
+        
 
         const isPasswordValid = await bcypt.compare(password, user.password);
         if (!isPasswordValid) {
