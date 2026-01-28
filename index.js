@@ -14,15 +14,18 @@ const app = express();
 app.use(express.json());
 app.use(cookieParser());
 app.use(morgan('dev'));
-app.use(cors({
-    origin: process.env.FRONTEND_URL 
-        ? process.env.FRONTEND_URL.trim().replace(/\/$/, "") 
-        : "https://osint-client.vercel.app", 
-    credentials: true,             
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"], 
-    allowedHeaders: ["Content-Type", "Authorization"]
-}));
+const allowedOrigins = [
+    "https://osint-client.vercel.app",
+    "http://localhost:5173", 
+    process.env.FRONTEND_URL?.replace(/\/$/, "")
+].filter(Boolean);
 
+app.use(cors({
+    origin: allowedOrigins,
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization", "Cookie"]
+}));
 app.get('/', (req, res) => {
   res.send('Cyber API is running...');
 });
