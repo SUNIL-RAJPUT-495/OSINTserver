@@ -30,15 +30,18 @@ const userSchema = new mongoose.Schema({
         enum: ['customer', 'admin', 'moderator'],
         default: 'customer',
         validate: {
-        validator: async function(value) {
-            if (value === 'admin') {
-                const adminCount = await mongoose.models.User.countDocuments({ role: 'admin' });
-                return adminCount === 0 || this.role !== 'admin'; 
-            }
-            return true;
-        },
-        message: 'System Error: Only one Admin is allowed in the database.'
-    }
+            validator: async function(value) {
+                if (value === 'admin') {
+                    const adminExists = await mongoose.models.User.findOne({ role: 'admin' });
+                    
+                    if (adminExists && adminExists._id.toString() !== this._id?.toString()) {
+                        return false;
+                    }
+                }
+                return true;
+            },
+            message: 'Security Alert: Only one Admin account is allowed in the system.'
+        }
     },
     isActive: {
         type: Boolean,
@@ -48,6 +51,6 @@ const userSchema = new mongoose.Schema({
         type: String,
         default: "" 
     }
-}, {timestamps:true});
+}, { timestamps: true });
 
 export const User = mongoose.model('User', userSchema);

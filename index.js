@@ -6,11 +6,13 @@ import morgan from 'morgan';
 import cors from 'cors';  
 import roomRouter from './routes/room.router.js';
 import challengRouter from './routes/challeng.router.js';
+import cookieParser from 'cookie-parser';
 
 dotenv.config();
 const app = express();
 
 app.use(express.json());
+app.use(cookieParser());
 app.use(morgan('dev'));
 app.use(cors({
     origin: process.env.FRONTEND_URL 

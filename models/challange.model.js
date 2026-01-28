@@ -11,7 +11,8 @@ const ChallengeSchema = new mongoose.Schema({
   },
   hint: {
     type: String,
-    required: ""
+    required: false, 
+    default: ""
   },
   flag:{
     type: String,

@@ -24,7 +24,7 @@ export const authToken = async (req, res, next) => {
             }
 
             
-            req.userId = decoded.id;
+           req.user = { _id: decoded.id };
             next(); 
         });
 
