@@ -110,7 +110,8 @@ export const getChallengesByRoom = async (req, res) => {
 
         const userSubmissions = await Submission.find({ 
             user: userId, 
-            challenge: { $in: challenges.map(c => c._id) } 
+            challenge: { $in: challenges.map(c => c._id) } ,
+            isCorrect: true
         });
 
         const solvedIds = userSubmissions.map(s => s.challenge.toString());
