@@ -134,9 +134,10 @@ export const verifyUser = async (req, res) => {
 
         const cookieOption = {
             httpOnly: true,
-            secure: process.env.NODE_ENV === "production", 
-            sameSite: 'lax',
-            maxAge: 30 * 24 * 60 * 60 * 1000
+            secure: true, 
+            sameSite: 'None',
+            maxAge: 30 * 24 * 60 * 60 * 1000,
+            path: "/"
         };
 
         return res
