@@ -1,12 +1,13 @@
 import { Challenge } from '../models/challange.model.js';
 import { room } from '../models/room.model.js';
 import { Submission } from '../models/submission.model.js';
+import { User } from '../models/user.model.js';
 
 export const creatChallange = async (req, res) => {
     try {
-        const { title, description, points, roomId } = req.body;
+        const { title, description, points,flag, roomId ,hint } = req.body;
 
-        if (!title || !description || !points || !roomId) {
+        if (!title || !description || !points || !roomId || !flag) {
             return res.status(400).json({
                 message: 'All fields are required',
                 error: true,
@@ -18,7 +19,9 @@ export const creatChallange = async (req, res) => {
             title,
             description,
             points,
-            room: roomId
+            room: roomId,
+            flag,
+            hint
         });
 
         const savedChallenge = await newChallenge.save();
@@ -48,10 +51,10 @@ export const creatChallange = async (req, res) => {
 export const updateChallenge = async (req, res) => {
     try {
         const { challengeId } = req.params;
-        const updateData = req.body;    
+        const updateData = req.body;
         const updatedChallenge = await Challenge.findByIdAndUpdate(challengeId, updateData, { new: true });
 
-        if (!updatedChallenge) {    
+        if (!updatedChallenge) {
             return res.status(404).json({
                 message: 'Challenge not found',
                 error: true,
@@ -100,43 +103,40 @@ export const deleteChallenge = async (req, res) => {
         });
     }
 }
-
+// Backend Controller: getChallengesByRoom
 export const getChallengesByRoom = async (req, res) => {
     try {
-        const { roomId } = req.params;
-        const userId = req.user?._id; 
+        const { id } = req.params; // Room ID
+        const userId = req.user?._id;
 
-        const challenges = await Challenge.find({ room: roomId });
+        // Challenges fetch karein
+        const challenges = await Challenge.find({ room: id });
 
-        const userSubmissions = await Submission.find({ 
-            user: userId, 
-            challenge: { $in: challenges.map(c => c._id) } ,
+        // Solved submissions dhundhein
+        const solvedSubmissions = await Submission.find({
+            user: userId,
+            challenge: { $in: challenges.map(c => c._id) },
             isCorrect: true
         });
 
-        const solvedIds = userSubmissions.map(s => s.challenge.toString());
-        
-        const submissionsMap = {};
-        userSubmissions.forEach(s => {
-            submissionsMap[s.challenge] = s.submittedAnswer;
+        // Mapping for Frontend
+        const solvedIds = solvedSubmissions.map(s => s.challenge.toString());
+        const userSubmissions = {};
+        solvedSubmissions.forEach(s => {
+            userSubmissions[s.challenge.toString()] = s.submittedAnswer;
         });
 
         res.status(200).json({
-            message: 'Challenges fetched successfully',
             success: true,
-            error: false,
             data: challenges,
-            solvedIds: solvedIds,        
-            userSubmissions: submissionsMap 
+            solvedIds,
+            userSubmissions
         });
     } catch (error) {
-        res.status(500).json({
-            message: 'Server Error',
-            error: error.message,
-            success: false
-        });
+        res.status(500).json({ success: false, message: error.message });
     }
-}
+};
+
 
 export const submitChallenge = async (req, res) => {
     try {
@@ -147,17 +147,17 @@ export const submitChallenge = async (req, res) => {
         if (!challenge) return res.status(404).json({ success: false, message: "Challenge not found" });
 
         const alreadySolved = await Submission.findOne({ user: userId, challenge: challengeId, isCorrect: true });
-        
+
         if (alreadySolved) {
             return res.status(200).json({
                 success: true,
-                correct: true, 
+                correct: true,
                 message: "Already solved!",
                 alreadySolved: true
             });
         }
 
-        const isCorrect = challenge.correctAnswer === answer;
+        const isCorrect = challenge.flag === answer;
 
         const newSubmission = await Submission.create({
             user: userId,

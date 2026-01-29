@@ -1,6 +1,7 @@
 import bcrypt from 'bcryptjs'; 
 import { User } from '../models/user.model.js';
 import { generateToken } from '../utils/generatedToken.js';
+import { Submission } from '../models/submission.model.js';
 
 // ---------------------- CREATE USER ----------------------
 export const creatuser = async (req, res) => {
@@ -183,5 +184,39 @@ export const getUser = async (req, res) => {
             error: true,
             success: false
         });
+    }
+};
+
+
+export const getUserAnalytics = async (req, res) => {
+    try {
+        const users = await User.find({ role: 'customer' }).select('-password');
+
+        const analytics = await Promise.all(users.map(async (user) => {
+            const submissions = await Submission.find({ user: user._id })
+                .populate('challenge', 'title points');
+
+            const totalPoints = submissions
+                .filter(s => s.isCorrect)
+                .reduce((sum, s) => sum + s.pointsEarned, 0);
+
+            return {
+                _id: user._id,
+                fullName: user.fullName,
+                email: user.email,
+                totalPoints,
+                attemptsCount: submissions.length,
+                details: submissions.map(s => ({
+                    challengeTitle: s.challenge?.title,
+                    submittedAnswer: s.submittedAnswer,
+                    isCorrect: s.isCorrect,
+                    timestamp: s.createdAt
+                }))
+            };
+        }));
+
+        res.status(200).json({ success: true, data: analytics });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
     }
 };
