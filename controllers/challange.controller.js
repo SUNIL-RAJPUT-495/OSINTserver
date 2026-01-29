@@ -1,7 +1,6 @@
 import { Challenge } from '../models/challange.model.js';
 import { room } from '../models/room.model.js';
 import { Submission } from '../models/submission.model.js';
-import { User } from '../models/user.model.js';
 
 export const creatChallange = async (req, res) => {
     try {
@@ -103,23 +102,23 @@ export const deleteChallenge = async (req, res) => {
         });
     }
 }
-// Backend Controller: getChallengesByRoom
+
+
+
 export const getChallengesByRoom = async (req, res) => {
     try {
-        const { id } = req.params; // Room ID
+        const { id } = req.params; 
         const userId = req.user?._id;
 
-        // Challenges fetch karein
         const challenges = await Challenge.find({ room: id });
 
-        // Solved submissions dhundhein
+
         const solvedSubmissions = await Submission.find({
             user: userId,
             challenge: { $in: challenges.map(c => c._id) },
             isCorrect: true
         });
 
-        // Mapping for Frontend
         const solvedIds = solvedSubmissions.map(s => s.challenge.toString());
         const userSubmissions = {};
         solvedSubmissions.forEach(s => {

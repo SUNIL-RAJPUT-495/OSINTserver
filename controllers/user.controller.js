@@ -3,7 +3,7 @@ import { User } from '../models/user.model.js';
 import { generateToken } from '../utils/generatedToken.js';
 import { Submission } from '../models/submission.model.js';
 
-// ---------------------- CREATE USER ----------------------
+// CREATE USER 
 export const creatuser = async (req, res) => {
     try {
         const { fullName, mobileNumber, email, password, accessCode, role } = req.body;
@@ -87,7 +87,7 @@ export const creatuser = async (req, res) => {
     }
 }
 
-// ---------------------- VERIFY USER (LOGIN) ----------------------
+// VERIFY USER (LOGIN) 
 export const verifyUser = async (req, res) => {
     try {
         const { email, password, accessCode, role } = req.body;
@@ -187,36 +187,55 @@ export const getUser = async (req, res) => {
     }
 };
 
-
-export const getUserAnalytics = async (req, res) => {
+// GET ALL USERS ANALYTICS
+export const getAllUsersAnalytics = async (req, res) => {
     try {
-        const users = await User.find({ role: 'customer' }).select('-password');
+        const users = await User.find({ role: 'customer' })
+                                .select('fullName email mobileNumber createdAt'); 
 
-        const analytics = await Promise.all(users.map(async (user) => {
+        const userAnalytics = await Promise.all(users.map(async (user) => {
             const submissions = await Submission.find({ user: user._id })
-                .populate('challenge', 'title points');
+                .populate({
+                    path: 'challenge',
+                    select: 'title points room', 
+                    populate: {
+                        path: 'room', 
+                        select: 'title name' 
+                    }
+                });
 
-            const totalPoints = submissions
+            const earnedPoints = submissions
                 .filter(s => s.isCorrect)
-                .reduce((sum, s) => sum + s.pointsEarned, 0);
+                .reduce((sum, sub) => sum + (sub.pointsEarned || 0), 0);
 
             return {
                 _id: user._id,
                 fullName: user.fullName,
                 email: user.email,
-                totalPoints,
+                
+                mobile: user.mobileNumber,      
+                mobileNumber: user.mobileNumber,
+                
+                totalPoints: 100 + earnedPoints,
                 attemptsCount: submissions.length,
+                
                 details: submissions.map(s => ({
-                    challengeTitle: s.challenge?.title,
+                    challengeTitle: s.challenge?.title || "Unknown Challenge",
+                    roomName: s.challenge?.room?.title || s.challenge?.room?.name || "Unassigned Sector", 
                     submittedAnswer: s.submittedAnswer,
                     isCorrect: s.isCorrect,
+                    pointsAwarded: s.pointsEarned,
                     timestamp: s.createdAt
                 }))
             };
         }));
 
-        res.status(200).json({ success: true, data: analytics });
+        res.status(200).json({
+            success: true,
+            data: userAnalytics
+        });
     } catch (error) {
+        console.error("Analytics Error:", error);
         res.status(500).json({ success: false, message: error.message });
     }
 };
