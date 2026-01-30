@@ -3,8 +3,8 @@ import { creatuser, getUser, getAllUsersAnalytics, verifyUser } from "../control
 import { authToken } from "../middleware/authToken.js";
 
 const userRouter = Router();
-userRouter.post('/create-user',authToken, creatuser);
-userRouter.post('/verify-user',authToken, verifyUser);
+userRouter.post('/create-user', creatuser);
+userRouter.post('/verify-user', verifyUser);
 userRouter.get("/get-user",authToken,getUser)
 userRouter.get("/get-user-analytics",authToken,getAllUsersAnalytics)
 

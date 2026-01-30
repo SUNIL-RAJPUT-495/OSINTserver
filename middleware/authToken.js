@@ -2,19 +2,22 @@ import jwt from 'jsonwebtoken';
 
 export const authToken = async (req, res, next) => {
     try {
-        
-        const token = req.cookies?.token;
+        // --- OLD CODE (Sirf Cookie) ---
+        // const token = req.cookies?.token;
 
-        
+        // --- NEW CODE (Cookie + Header Support) ---
+        // Pehle Cookie check karega, agar nahi mili to Header check karega
+        const token = req.cookies?.token || req.header("Authorization")?.replace("Bearer ", "");
+
         if (!token) {
             return res.status(401).json({
-                message: "User not logged in",
+                message: "User not logged in", // Token nahi mila
                 error: true,
                 success: false
             });
         }
 
-        jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
+        jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, decoded) => {
             if (err) {
                 return res.status(403).json({
                     message: "Token is invalid or expired",
@@ -23,9 +26,11 @@ export const authToken = async (req, res, next) => {
                 });
             }
 
+            // User ID set karo taaki agle function ko mile
+            // Dhyan de: decoded ke andar field ka naam '_id' hai ya 'id', wo generateToken function pe depend karta hai
+            req.user = { _id: decoded._id || decoded.id };
             
-           req.user = { _id: decoded.id };
-            next(); 
+            next(); // Aage badho
         });
 
     } catch (err) {
