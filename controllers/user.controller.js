@@ -9,24 +9,44 @@ export const creatuser = async (req, res) => {
         const { fullName, mobileNumber, email, password, accessCode, role } = req.body;
 
         if (!fullName || !mobileNumber || !email || !password || !role) {
-            return res.status(400).json({ message: "All fields are required", error: true, success: false });
+            return res.status(400).json({
+                 message: "All fields are required",
+                  error: true,
+                   success: false
+                 });
         }
 
         if (role === 'admin') {
             const existingAdmin = await User.findOne({ role: 'admin' });
             if (existingAdmin) {
-                return res.status(403).json({ message: "Admin already exists.", error: true, success: false });
+                return res.status(403).json({ 
+                    message: "Admin already exists.", 
+                    error: true, 
+                    success: false });
             }
         }
 
         if (role === "customer") {
-            if (!accessCode) return res.status(400).json({ message: "Access Code required", error: true, success: false });
-            if (accessCode !== "new2025") return res.status(400).json({ message: "Invalid Access Code", error: true, success: false });
+            if (!accessCode) return res.status(400).json({
+                 message: "Access Code required", 
+                 error: true,
+                  success: false 
+                });
+            if (accessCode !== "new2025")
+                 return res.status(400).json({ 
+                message: "Invalid Access Code",
+                 error: true, 
+                 success: false
+                 });
         }
 
         const userExits = await User.findOne({ email });
         if (userExits) {
-            return res.status(400).json({ message: "User already exists", error: true, success: false });
+            return res.status(400).json({
+                 message: "User already exists",
+                  error: true, 
+                  success: false
+                 });
         }
 
         const hashedPassword = await bcrypt.hash(password, 10);
@@ -44,7 +64,11 @@ export const creatuser = async (req, res) => {
         });
 
     } catch (error) {
-        return res.status(500).json({ message: error.message, error: true, success: false });
+        return res.status(500).json({ 
+            message: error.message, 
+            error: true, 
+            success: false
+         });
     }
 }
 
@@ -54,23 +78,35 @@ export const verifyUser = async (req, res) => {
         const { email, password, accessCode, role } = req.body;
 
         if (!email || !password || !role) {
-            return res.status(400).json({ message: "All fields are required", success: false });
+            return res.status(400).json({
+                 message: "All fields are required", 
+                 success: false
+                 });
         }
 
         const user = await User.findOne({ email });
         if (!user) {
-            return res.status(404).json({ message: "User not found", success: false });
+            return res.status(404).json({
+                 message: "User not found",
+                  success: false 
+                });
         }
 
         if (user.role === "customer") {
             if (accessCode !== "new2025") { 
-                return res.status(400).json({ message: "Invalid Access Code", success: false });
+                return res.status(400).json({
+                     message: "Invalid Access Code",
+                      success: false
+                     });
             }
         }
 
         const isPasswordValid = await bcrypt.compare(password, user.password);
         if (!isPasswordValid) {
-            return res.status(401).json({ message: "Invalid password", success: false });
+            return res.status(401).json({
+                 message: "Invalid password", 
+                 success: false
+                 });
         }
 
         // Token Generation
@@ -82,7 +118,7 @@ export const verifyUser = async (req, res) => {
             httpOnly: true,
             secure: isProduction,
             sameSite: isProduction ? 'None' : 'Lax',
-            maxAge: 7 * 24 * 60 * 60 * 1000, // 7 Days
+            maxAge: 7 * 24 * 60 * 60 * 1000, 
             path: "/"
         };
 
@@ -92,7 +128,7 @@ export const verifyUser = async (req, res) => {
             .json({
                 message: `Welcome back, ${user.fullName}`,
                 success: true,
-                token: token, // Important for Mobile
+                token: token, 
                 data: {
                     _id: user._id,
                     fullName: user.fullName,
@@ -102,11 +138,13 @@ export const verifyUser = async (req, res) => {
             });
 
     } catch (err) {
-        return res.status(500).json({ message: err.message, success: false });
+        return res.status(500).json({
+             message: err.message,
+              success: false
+             });
     }
 }
 
-// --- GET USERS ---
 export const getUser = async (req, res) => {
     try {
         const customers = await User.find({ role: "customer" }).select("-password");
@@ -116,18 +154,22 @@ export const getUser = async (req, res) => {
             data: customers
         });
     } catch (err) {
-        return res.status(500).json({ message: err.message, success: false });
+        return res.status(500).json({
+             message: err.message, 
+             success: false
+             });
     }
 };
 
-// --- GET ANALYTICS ---
 export const getAllUsersAnalytics = async (req, res) => {
     try {
-        // Safe check using Optional Chaining
         const userId = req.user?._id;
 
         if(!userId){
-             return res.status(401).json({ message: "Unauthorized Request", success: false });
+             return res.status(401).json({ 
+                message: "Unauthorized Request", 
+                success: false
+             });
         }
 
         const users = await User.find({ role: 'customer' }).select('fullName email mobileNumber createdAt'); 
@@ -162,9 +204,14 @@ export const getAllUsersAnalytics = async (req, res) => {
             };
         }));
 
-        res.status(200).json({ success: true, data: userAnalytics });
+        res.status(200).json({ 
+            success: true, 
+            data: userAnalytics
+         });
     } catch (error) {
         console.error("Analytics Error:", error);
-        res.status(500).json({ success: false, message: error.message });
+        res.status(500).json({ 
+            success: false, 
+            message: error.message });
     }
 };
