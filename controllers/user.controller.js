@@ -133,13 +133,14 @@ export const verifyUser = async (req, res) => {
         user.refreshToken = token;
         await user.save();
 
-       const cookieOption = {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production" ? true : false, 
-    sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax",
-    maxAge: 30 * 24 * 60 * 60 * 1000,
-    path: "/"
-};
+        const cookieOption = {
+            httpOnly: true,
+            secure: true, 
+            sameSite: 'None',
+            maxAge: 30 * 24 * 60 * 60 * 1000,
+            path: "/"
+        };
+
         return res
             .cookie("token", token, cookieOption)
             .status(200)
