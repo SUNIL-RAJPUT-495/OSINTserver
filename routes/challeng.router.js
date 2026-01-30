@@ -12,7 +12,7 @@ const challengRouter = Router();
 
 challengRouter.post("/CreateChallenge", authToken, creatChallange);
 challengRouter.get("/getchallenges/:id", getChallengesByRoom);
-challengRouter.post("/submitchallenge",  submitChallenge);
+challengRouter.post("/submitchallenge", authToken, submitChallenge);
 
 challengRouter.put("/updatechallenge/:challengeId", authToken, updateChallenge);
 challengRouter.delete("/deletechallenge/:challengeId", authToken, deleteChallenge);
