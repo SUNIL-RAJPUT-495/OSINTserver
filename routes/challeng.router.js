@@ -7,10 +7,11 @@ import {
     updateChallenge 
 } from "../controllers/challange.controller.js";
 import { authToken } from "../middleware/authToken.js"; 
+import { isAdmin } from "../middleware/adminmiddleware.js";
 
 const challengRouter = Router();
 
-challengRouter.post("/CreateChallenge", authToken, creatChallange);
+challengRouter.post("/CreateChallenge", authToken, isAdmin,creatChallange);
 challengRouter.get("/getchallenges/:id", authToken,getChallengesByRoom);
 challengRouter.post("/submitchallenge", authToken, submitChallenge);
 
