@@ -143,7 +143,10 @@ export const submitChallenge = async (req, res) => {
         const userId = req.user?._id;
 
         const challenge = await Challenge.findById(challengeId);
-        if (!challenge) return res.status(404).json({ success: false, message: "Challenge not found" });
+        if (!challenge) return res.status(404).json({ 
+            success: false,
+            error: true,
+            message: "Challenge not found" });
 
         const alreadySolved = await Submission.findOne({ user: userId, challenge: challengeId, isCorrect: true });
 
