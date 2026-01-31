@@ -139,7 +139,7 @@ export const getChallengesByRoom = async (req, res) => {
 
 export const submitChallenge = async (req, res) => {
     try {
-        const { challengeId, answer } = req.body;
+        const { challengeId, answer,usedHint } = req.body;
         const userId = req.user?._id;
 
         const challenge = await Challenge.findById(challengeId);
@@ -160,14 +160,28 @@ export const submitChallenge = async (req, res) => {
         }
 
         const isCorrect = challenge.flag === answer;
+        let finalPoints = 0;
+        if (isCorrect) {
+            finalPoints = challenge.points; 
+
+            if (usedHint) {
+                finalPoints = Math.max(0, finalPoints - 50); 
+            }
+        }
 
         const newSubmission = await Submission.create({
             user: userId,
             challenge: challengeId,
             submittedAnswer: answer,
             isCorrect,
-            pointsEarned: isCorrect ? challenge.points : 0
+            pointsEarned: finalPoints,
+            usedHint: usedHint || false
         });
+        // if (isCorrect) {
+        //     await User.findByIdAndUpdate(userId, {
+        //         $inc: { totalPoints: totalReward } 
+        //     });
+        // }
 
         res.status(200).json({
             success: true,

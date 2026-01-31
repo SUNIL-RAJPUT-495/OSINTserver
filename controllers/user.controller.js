@@ -1,6 +1,6 @@
 import bcrypt from 'bcryptjs'; 
 import { User } from '../models/user.model.js';
-import { generateToken } from '../utils/generatedToken.js'; // Ensure path is correct
+import { generateToken } from '../utils/generatedToken.js'; 
 import { Submission } from '../models/submission.model.js';
 
 // --- CREATE USER ---
@@ -191,7 +191,7 @@ export const getAllUsersAnalytics = async (req, res) => {
                 fullName: user.fullName,
                 email: user.email,
                 mobileNumber: user.mobileNumber,
-                totalPoints: 100 + earnedPoints,
+                totalPoints:  earnedPoints,
                 attemptsCount: submissions.length,
                 details: submissions.map(s => ({
                     challengeTitle: s.challenge?.title || "Unknown",
@@ -213,5 +213,32 @@ export const getAllUsersAnalytics = async (req, res) => {
         res.status(500).json({ 
             success: false, 
             message: error.message });
+    }
+};
+
+
+export const deductPoints = async (req, res) => {
+    try {
+        const userId = req.user._id; 
+        const { pointsToDeduct } = req.body; 
+
+        const updatedUser = await User.findByIdAndUpdate(
+            userId,
+            { $inc: { totalPoints: -pointsToDeduct } }, 
+            { new: true }
+        );
+
+        if (!updatedUser) {
+            return res.status(404).json({ success: false, message: "User not found" });
+        }
+
+        return res.status(200).json({
+            success: true,
+            message: "Points deducted",
+            remainingPoints: updatedUser.totalPoints
+        });
+
+    } catch (error) {
+        return res.status(500).json({ success: false, message: error.message });
     }
 };

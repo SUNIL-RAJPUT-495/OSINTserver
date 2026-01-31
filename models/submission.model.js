@@ -22,7 +22,11 @@ const submissionSchema = new mongoose.Schema({
     },
     pointsEarned: {
         type: Number,
-        default: 100
+        default: 0
+    },
+    usedHint: {
+        type: Boolean,
+        default: false
     }
 }, { timestamps: true });
 
