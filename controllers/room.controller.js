@@ -1,4 +1,5 @@
-import { room } from "../models/room.model.js"; 
+import { room } from "../models/room.model.js";
+import { Challenge } from "../models/challange.model.js"; 
 
 
 export const createRoom = async (req, res) => {
