@@ -17,6 +17,7 @@ app.use(morgan('dev'));
 const allowedOrigins = [
     "https://osint-client.vercel.app",
     "http://localhost:5173", 
+    
     process.env.FRONTEND_URL?.replace(/\/$/, "")
 ].filter(Boolean);
 

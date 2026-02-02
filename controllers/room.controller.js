@@ -96,14 +96,16 @@ export const getRoom = async (req, res) => {
 export const deleteRoom = async (req, res) => {
     try {
         const { id } = req.params;
-        const deletedRoom = await room.findByIdAndDelete(id);
+        const roomExists = await room.findById(id);
 
-        if (!deletedRoom) {
+        if (!roomExists) {
             return res.status(404).json({
                 message: "Room not found",
                 success: false
             });
         }
+        await Challenge.deleteMany({ room: id });
+      await room.findByIdAndDelete(id);
 
         return res.status(200).json({
             message: "Room deleted successfully",
